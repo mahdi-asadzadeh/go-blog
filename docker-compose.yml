@@ -1,0 +1,38 @@
+version: '3'
+
+services:
+  app:
+    container_name: go_blog_app
+    networks:
+      - main
+    build: .
+    command: go run main.go create
+    ports: 
+      - 8080:8080
+    restart: on-failure
+    volumes:
+      - .:/go_blog
+    depends_on:
+      - db
+       
+  db:
+    image: postgres
+    networks:
+      - main
+    container_name: go_blog_db
+    environment:
+      - POSTGRES_USER=goBlog
+      - POSTGRES_PASSWORD=goBlog
+      - POSTGRES_DB=goBlog
+    ports:
+      - '5432:5432'
+    volumes:
+      - database_postgres:/var/lib/postgresql/data
+
+networks:
+  main:
+    external: true
+
+volumes:
+  database_postgres:
+    external: true
