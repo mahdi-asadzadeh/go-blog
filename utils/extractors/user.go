@@ -16,17 +16,12 @@ func GetUser(u *models.User) map[string]interface{} {
 }
 
 func CreateLoginSuccessfull(user *models.User) map[string]interface{} {
-	var roles = make([]string, len(user.Roles))
-	for i := 0; i < len(user.Roles); i++ {
-		roles[i] = user.Roles[i].Name
-	}
 	return map[string]interface{}{
 		"success": true,
 		"token":   user.GenerateJwtToken(),
 		"user": map[string]interface{}{
 			"email": user.Email,
 			"id":    user.ID,
-			"roles": roles,
 		},
 	}
 }

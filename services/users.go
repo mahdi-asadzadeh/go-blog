@@ -23,7 +23,7 @@ func FindOneUser(condition interface{}) (models.User, error) {
 	fmt.Println(condition)
 	database := infrastructure.GetDB()
 	var user models.User
-	err := database.Where(condition).Preload("Roles").First(&user).Error
+	err := database.Where(condition).First(&user).Error
 	return user, err
 }
 

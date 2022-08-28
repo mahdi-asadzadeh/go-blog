@@ -17,18 +17,6 @@ type User struct {
 	Bio       string `gorm:"column:bio;size:1024"`
 	Image     string `gorm:"column:image"`
 	Password  string `gorm:"column:password;not null"`
-
-	Roles []Role `gorm:"many2many:users_roles"`
-}
-
-func (user *User) BeforeSave(db *gorm.DB) (err error) {
-	if len(user.Roles) == 0 {
-		role := Role{}
-		userRole := Role{}
-		db.Model(&role).Where("name = ?", "ROLE_USER").First(userRole)
-		user.Roles = append(user.Roles, userRole)
-	}
-	return
 }
 
 func (user *User) IsValidPassword(password string) error {
@@ -39,16 +27,9 @@ func (user *User) IsValidPassword(password string) error {
 
 func (user *User) GenerateJwtToken() string {
 	jwt_token := jwt.New(jwt.SigningMethodHS512)
-	var roles []string
-	for _, role := range user.Roles {
-		roles = append(roles, role.Name)
-
-	}
-
 	jwt_token.Claims = jwt.MapClaims{
 		"user_id": user.ID,
 		"email":   user.Email,
-		"roles":   roles,
 		"exp":     time.Now().Add(time.Hour * 24 * 90).Unix(),
 	}
 	token, _ := jwt_token.SignedString([]byte(os.Getenv("JWT_SECRET")))
