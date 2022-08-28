@@ -9,10 +9,14 @@ import (
 	"github.com/mahdi-asadzadeh/go-blog/utils/extractors"
 )
 
-func InitTagRoutes(router *gin.RouterGroup) {
-	router.GET("/list", TagList)
-}
-
+// @Summary List tags
+// @Description List tags
+// @Tags Tag
+// @Accept json
+// @Product json
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /tag/list [GET]
 func TagList(ctx *gin.Context) {
 	tags, err := services.FetchAllTags()
 	if err != nil {

@@ -12,11 +12,16 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func InitUserRoutes(router *gin.RouterGroup) {
-	router.POST("/register", RegisterUser)
-	router.POST("/login", UsersLogin)
-}
-
+// @Summary Register an user
+// @Description Register an user
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param request body inputs.RegisterInput true "Register an user"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 422 {object} utils.ErrorResponse
+// @Router /user/register [Post]
 func RegisterUser(ctx *gin.Context) {
 	var json inputs.RegisterInput
 	err := ctx.ShouldBindJSON(&json)
@@ -44,6 +49,16 @@ func RegisterUser(ctx *gin.Context) {
 	)
 }
 
+// @Summary Login an user
+// @Description Login an user
+// @Tags User
+// @Accept  json
+// @Produce  json
+// @Param request body inputs.LoginInput true "Login an user"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 403 {object} utils.ErrorResponse
+// @Router /user/login [Post]
 func UsersLogin(ctx *gin.Context) {
 	var json inputs.LoginInput
 	if err := ctx.ShouldBindJSON(&json); err != nil {

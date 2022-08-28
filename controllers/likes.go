@@ -6,23 +6,21 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mahdi-asadzadeh/go-blog/infrastructure"
-	"github.com/mahdi-asadzadeh/go-blog/middlewares"
 	"github.com/mahdi-asadzadeh/go-blog/models"
 	"github.com/mahdi-asadzadeh/go-blog/services"
 	"github.com/mahdi-asadzadeh/go-blog/utils"
 	"github.com/mahdi-asadzadeh/go-blog/utils/extractors"
 )
 
-func InitLikeRoutes(router *gin.RouterGroup) {
-	router.GET("/likes/:slug", LikesArticle)
-	router.Use(middlewares.RequiredAuthMiddleware())
-	{
-		router.POST("/create/:slug", LikeArticle)
-		router.DELETE("/delete/:slug", DisLikeArticle)
-		router.GET("/my", MyLikes)
-	}
-}
-
+// @Security Authorization
+// @Summary List my likes
+// @Description List my likes
+// @Tags Like
+// @Access json
+// @Product json
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /like/my [GET]
 func MyLikes(ctx *gin.Context) {
 	database := infrastructure.GetDB()
 
@@ -42,6 +40,15 @@ func MyLikes(ctx *gin.Context) {
 	)
 }
 
+// @Summary List an article's likes
+// @Description List an article's likes
+// @Tags Like
+// @Accept json
+// @Product json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /like/likes/{slug} [GET]
 func LikesArticle(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	database := infrastructure.GetDB()
@@ -64,6 +71,17 @@ func LikesArticle(ctx *gin.Context) {
 	)
 }
 
+// @Security Authorization
+// @Summary Dislike an article
+// @Description Dislike an article
+// @Tags Like
+// @Accept json
+// @Product json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 403 {object} utils.ErrorResponse
+// @Router /like/delete/{slug} [DELETE]
 func DisLikeArticle(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	database := infrastructure.GetDB()
@@ -94,6 +112,18 @@ func DisLikeArticle(ctx *gin.Context) {
 	}
 }
 
+// @Security Authorization
+// @Summary Like an articlle
+// @Description Like an article
+// @Tags Like
+// @Accept json
+// @Product json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 403 {object} utils.ErrorResponse
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 422 {object} utils.ErrorResponse
+// @Router /like/create/{slug} [POST]
 func LikeArticle(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 

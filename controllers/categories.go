@@ -9,11 +9,15 @@ import (
 	"github.com/mahdi-asadzadeh/go-blog/utils/extractors"
 )
 
-func InitCategoryRoutes(router *gin.RouterGroup) {
-	router.GET("/list", ListCategories)
-	router.GET("/detail/:slug", GategoryArticles)
-}
-
+// @Summary Category's list articles
+// @Description Category's list articles
+// @Tags Category
+// @Accept json
+// @Product json
+// @Param slug path string true "Article's slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /category/detail/{slug} [GET]
 func GategoryArticles(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	cat, err := services.FetchCategoryArticles(slug)
@@ -30,6 +34,14 @@ func GategoryArticles(ctx *gin.Context) {
 	)
 }
 
+// @Summary List categories
+// @Description List categories
+// @Tags Category
+// @Accept json
+// @Product json
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /category/list [GET]
 func ListCategories(ctx *gin.Context) {
 	categories, err := services.FetchAllCategories()
 	if err != nil {

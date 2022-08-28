@@ -1,0 +1,659 @@
+definitions:
+  inputs.CreateArticleInput:
+    properties:
+      body:
+        type: string
+      categories:
+        items:
+          properties:
+            description:
+              type: string
+            name:
+              minLength: 4
+              type: string
+          type: object
+        type: array
+      description:
+        type: string
+      tags:
+        items:
+          properties:
+            description:
+              type: string
+            name:
+              maxLength: 255
+              minLength: 4
+              type: string
+          type: object
+        type: array
+      title:
+        type: string
+    required:
+    - body
+    - description
+    - title
+    type: object
+  inputs.CreateCommentInput:
+    properties:
+      content:
+        type: string
+    required:
+    - content
+    type: object
+  inputs.LoginInput:
+    properties:
+      email:
+        type: string
+      password:
+        minLength: 8
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  inputs.RegisterInput:
+    properties:
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - first_name
+    - last_name
+    - password
+    type: object
+  utils.ErrorResponse:
+    properties:
+      error: {}
+      method:
+        type: string
+      statuscode:
+        type: integer
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      message:
+        type: string
+      method:
+        type: string
+      statuscode:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /article/create:
+    post:
+      consumes:
+      - application/json
+      description: Create article
+      parameters:
+      - description: Create article
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inputs.CreateArticleInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      summary: Create article
+      tags:
+      - Article
+  /article/delete/{slug}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete article by slug
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      summary: Delete article by slug
+      tags:
+      - Article
+  /article/detail/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Detail article by slug
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Detail article by slug
+      tags:
+      - Article
+  /article/list:
+    get:
+      consumes:
+      - application/json
+      description: List article
+      parameters:
+      - description: page size
+        in: query
+        name: page_size
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List article
+      tags:
+      - Article
+  /article/upload-images/{slug}:
+    post:
+      consumes:
+      - application/json
+      description: Upload a image for the article by slug
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Upload a image for the article by slug
+      tags:
+      - Article
+  /category/detail/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: Category's list articles
+      parameters:
+      - description: Article's slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Category's list articles
+      tags:
+      - Category
+  /category/list:
+    get:
+      consumes:
+      - application/json
+      description: List categories
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: List categories
+      tags:
+      - Category
+  /comment/create/{slug}:
+    post:
+      consumes:
+      - application/json
+      description: Create a comment by article's slug
+      parameters:
+      - description: Create comment
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inputs.CreateCommentInput'
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      tags:
+      - Comment
+  /comment/delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a comment
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      tags:
+      - Comment
+  /comment/list/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: List comments by article's slug
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      tags:
+      - Comment
+  /comment/show/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Show a comment
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      tags:
+      - Comment
+  /images/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: List article's image
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: List article's image
+      tags:
+      - Article
+  /like/create/{slug}:
+    post:
+      consumes:
+      - application/json
+      description: Like an article
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      summary: Like an articlle
+      tags:
+      - Like
+  /like/delete/{slug}:
+    delete:
+      consumes:
+      - application/json
+      description: Dislike an article
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      summary: Dislike an article
+      tags:
+      - Like
+  /like/likes/{slug}:
+    get:
+      consumes:
+      - application/json
+      description: List an article's likes
+      parameters:
+      - description: slug
+        in: path
+        name: slug
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: List an article's likes
+      tags:
+      - Like
+  /like/my:
+    get:
+      description: List my likes
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      security:
+      - Authorization: []
+      summary: List my likes
+      tags:
+      - Like
+  /relation/follow/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Follow an user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Authorization: []
+      summary: Follow an user
+      tags:
+      - Relation
+  /relation/followers{id}:
+    get:
+      consumes:
+      - application/json
+      description: List an user's followers
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List an user's followers
+      tags:
+      - Relation
+  /relation/followings{id}:
+    get:
+      consumes:
+      - application/json
+      description: List an user's followings
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: List an user's followings
+      tags:
+      - Relation
+  /relation/unfollow/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Unfollow an user
+      parameters:
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+      security:
+      - Authorization: []
+      summary: Unfollow an user
+      tags:
+      - Relation
+  /tag/list:
+    get:
+      consumes:
+      - application/json
+      description: List tags
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: List tags
+      tags:
+      - Tag
+  /user/login:
+    post:
+      consumes:
+      - application/json
+      description: Login an user
+      parameters:
+      - description: Login an user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inputs.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Login an user
+      tags:
+      - User
+  /user/register:
+    post:
+      consumes:
+      - application/json
+      description: Register an user
+      parameters:
+      - description: Register an user
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/inputs.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/utils.ErrorResponse'
+      summary: Register an user
+      tags:
+      - User
+securityDefinitions:
+  Authorization:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

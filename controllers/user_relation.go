@@ -6,23 +6,19 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/mahdi-asadzadeh/go-blog/infrastructure"
-	"github.com/mahdi-asadzadeh/go-blog/middlewares"
 	"github.com/mahdi-asadzadeh/go-blog/models"
 	"github.com/mahdi-asadzadeh/go-blog/utils"
 	"github.com/mahdi-asadzadeh/go-blog/utils/extractors"
 )
 
-func InitUserRelationRoutes(router *gin.RouterGroup) {
-	router.GET("/followers/:id", ListFollowers)
-	router.GET("/following/:id", ListFollowing)
-	router.Use(middlewares.RequiredAuthMiddleware())
-	{
-		router.POST("/follow/:id", FollowUser)
-		router.DELETE("/unfollow/:id", UnFollowUser)
-	}
-
-}
-
+// @Summary List an user's followers
+// @Description List an user's followers
+// @Tags Relation
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Router /relation/followers{id} [GET]
 func ListFollowers(ctx *gin.Context) {
 	userIDStr, _ := strconv.Atoi(ctx.Param("id"))
 	userID := uint(userIDStr)
@@ -33,6 +29,14 @@ func ListFollowers(ctx *gin.Context) {
 	utils.APIResponse(ctx, "", http.StatusOK, "GET", extractors.GetUserFollowerList(relations))
 }
 
+// @Summary List an user's followings
+// @Description  List an user's followings
+// @Tags Relation
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Router /relation/followings{id} [GET]
 func ListFollowing(ctx *gin.Context) {
 	userIDStr, _ := strconv.Atoi(ctx.Param("id"))
 	userID := uint(userIDStr)
@@ -43,6 +47,15 @@ func ListFollowing(ctx *gin.Context) {
 	utils.APIResponse(ctx, "", http.StatusOK, "GET", extractors.GetUserFollowingList(relations))
 }
 
+// @Security Authorization
+// @Summary Follow an user
+// @Description Follow an user
+// @Tags Relation
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Router /relation/follow/{id} [POST]
 func FollowUser(ctx *gin.Context) {
 	fromUser := ctx.MustGet("currentUser").(models.User)
 	toUserID, _ := strconv.Atoi(ctx.Param("id"))
@@ -55,6 +68,15 @@ func FollowUser(ctx *gin.Context) {
 	utils.APIResponse(ctx, "", http.StatusOK, "POST", extractors.GetUserFollower(&relation))
 }
 
+// @Security Authorization
+// @Summary Unfollow an user
+// @Description Unfollow an user
+// @Tags Relation
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Router /relation/unfollow/{id} [DELETE]
 func UnFollowUser(ctx *gin.Context) {
 	fromUser := ctx.MustGet("currentUser").(models.User)
 	toUserID, _ := strconv.Atoi(ctx.Param("id"))

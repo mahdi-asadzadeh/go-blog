@@ -9,7 +9,6 @@ import (
 	"github.com/gosimple/slug"
 	"github.com/mahdi-asadzadeh/go-blog/infrastructure"
 	"github.com/mahdi-asadzadeh/go-blog/inputs"
-	"github.com/mahdi-asadzadeh/go-blog/middlewares"
 	"github.com/mahdi-asadzadeh/go-blog/models"
 	"github.com/mahdi-asadzadeh/go-blog/services"
 	"github.com/mahdi-asadzadeh/go-blog/utils"
@@ -17,19 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func InitArticleRoutes(router *gin.RouterGroup) {
-	router.GET("/list", ListArticles)
-	router.GET("/detail/:slug", DetailArticle)
-	router.GET("/images/:slug", ArticleImageList)
-	router.Use(middlewares.RequiredAuthMiddleware())
-	{
-		router.POST("/create", CreateArticle)
-		router.POST("/upload-images/:slug", UploadImagesProduct)
-		router.DELETE("/delete/:slug", DeleteArticle)
-	}
-
-}
-
+// @Summary Upload a image for the article by slug
+// @Description Upload a image for the article by slug
+// @Tags Article
+// @Accept json
+// @Produce json
+// @Success 200 {object} utils.Response
+// @Router /article/upload-images/{slug} [POST]
 func UploadImagesProduct(ctx *gin.Context) {
 	file, err := ctx.FormFile("image")
 	slug := ctx.Param("slug")
@@ -64,11 +57,21 @@ func UploadImagesProduct(ctx *gin.Context) {
 	utils.APIResponse(ctx, "Successfuly upload image.", http.StatusOK, "POST", nil)
 }
 
+// @Summary List article's image
+// @Description List article's image
+// @Tags Article
+// @Accept  json
+// @Produce  json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /images/{slug} [GET]
 func ArticleImageList(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	articleID, err := services.FetchArticleId(slug)
 	if err != nil {
-		utils.APIResponse(ctx, "Article not found.", http.StatusNotFound, "GET", err.Error())
+		utils.APIErrorResponse(ctx, http.StatusNotFound, "GET", err.Error())
 		return
 	}
 	images, err := services.FetchArticleImages(articleID)
@@ -80,6 +83,16 @@ func ArticleImageList(ctx *gin.Context) {
 
 }
 
+// @Summary Detail article by slug
+// @Description Detail article by slug
+// @Tags Article
+// @Accept json
+// @Product json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /article/detail/{slug} [GET]
 func DetailArticle(ctx *gin.Context) {
 	slugParam := ctx.Param("slug")
 	article, err := services.FetchArticleDetails(&models.Article{Slug: slugParam})
@@ -100,6 +113,15 @@ func DetailArticle(ctx *gin.Context) {
 	)
 }
 
+// @Summary List article
+// @Description List article
+// @Tags Article
+// @Accept  json
+// @Produce  json
+// @Param page_size query string false "page size"
+// @Param page query string false "page"
+// @Success 200 {object} utils.Response
+// @Router /article/list [GET]
 func ListArticles(ctx *gin.Context) {
 	pageSizeStr := ctx.Query("page_size")
 	pageStr := ctx.Query("page")
@@ -122,6 +144,17 @@ func ListArticles(ctx *gin.Context) {
 	)
 }
 
+// @Security Authorization
+// @Summary Create article
+// @Description Create article
+// @Tags Article
+// @Accept  json
+// @Produce  json
+// @Param request body inputs.CreateArticleInput true "Create article"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 422 {object} utils.ErrorResponse
+// @Router /article/create [POST]
 func CreateArticle(ctx *gin.Context) {
 	var json inputs.CreateArticleInput
 	err := ctx.ShouldBindJSON(&json)
@@ -169,13 +202,23 @@ func CreateArticle(ctx *gin.Context) {
 	)
 }
 
+// @Security Authorization
+// @Summary Delete article by slug
+// @Description Delete article by slug
+// @Tags Article
+// @Accept  json
+// @Produce  json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /article/delete/{slug} [DELETE]
 func DeleteArticle(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 
 	user := ctx.MustGet("currentUser").(models.User)
-	err := services.DeleteArticleIfOwnerOrAdmin(&user, &models.Article{Slug: slug})
+	err := services.DeleteArticleIfOwnerOrAdmin(&user, slug)
 	if err != nil {
-		utils.APIErrorResponse(ctx, http.StatusNotFound, "DELETEdd", err.Error())
+		utils.APIErrorResponse(ctx, http.StatusNotFound, "DELETE", err.Error())
 		return
 	}
 	utils.APIResponse(

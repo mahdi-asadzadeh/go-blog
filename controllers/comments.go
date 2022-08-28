@@ -7,24 +7,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mahdi-asadzadeh/go-blog/infrastructure"
 	"github.com/mahdi-asadzadeh/go-blog/inputs"
-	"github.com/mahdi-asadzadeh/go-blog/middlewares"
 	"github.com/mahdi-asadzadeh/go-blog/models"
 	"github.com/mahdi-asadzadeh/go-blog/services"
 	"github.com/mahdi-asadzadeh/go-blog/utils"
 	"github.com/mahdi-asadzadeh/go-blog/utils/extractors"
 )
 
-func InitCommentRoutes(router *gin.RouterGroup) {
-	router.GET("/list/:slug", ListComments)
-	router.GET("/show/:id", ShowComment)
-
-	router.Use(middlewares.RequiredAuthMiddleware())
-	{
-		router.POST("/create/:slug", CreateComment)
-		router.DELETE("/delete/:id", DeleteComment)
-	}
-}
-
+// @Security Authorization
+// @Summart Create a comment by article's slug
+// @Description Create a comment by article's slug
+// @Tags Comment
+// @Accept json
+// @Product json
+// @Param request body inputs.CreateCommentInput true "Create comment"
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 422 {object} utils.ErrorResponse
+// @Router /comment/create/{slug} [POST]
 func CreateComment(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 	articleId, err := services.FetchArticleId(slug)
@@ -57,6 +58,15 @@ func CreateComment(ctx *gin.Context) {
 	)
 }
 
+// @Summart List comments by article's slug
+// @Description List comments by article's slug
+// @Tags Comment
+// @Accept json
+// @Product json
+// @Param slug path string true "slug"
+// @Success 200 {object} utils.Response
+// @Failure 404 {object} utils.ErrorResponse
+// @Router /comment/list/{slug} [GET]
 func ListComments(ctx *gin.Context) {
 	slug := ctx.Param("slug")
 
@@ -80,6 +90,15 @@ func ListComments(ctx *gin.Context) {
 	)
 }
 
+// @Summart Show a comment
+// @Description Show a comment
+// @Tags Comment
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.ErrorResponse
+// @Router /comment/show/{id} [GET]
 func ShowComment(ctx *gin.Context) {
 	commentID := ctx.Param("id")
 	id, _ := strconv.Atoi(commentID)
@@ -97,6 +116,17 @@ func ShowComment(ctx *gin.Context) {
 	)
 }
 
+// @Security Authorization
+// @Summart Delete a comment
+// @Description Delete a comment
+// @Tags Comment
+// @Accept json
+// @Product json
+// @Param id path string true "id"
+// @Success 200 {object} utils.Response
+// @Failure 400 {object} utils.ErrorResponse
+// @Failure 403 {object} utils.ErrorResponse
+// @Router /comment/delete/{id} [DELETE]
 func DeleteComment(ctx *gin.Context) {
 	commentID := ctx.Param("id")
 	id, _ := strconv.Atoi(commentID)
