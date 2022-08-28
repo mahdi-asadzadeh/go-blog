@@ -5,15 +5,16 @@ import (
 	"github.com/mahdi-asadzadeh/go-blog/models"
 )
 
-func DeleteArticleIfOwnerOrAdmin(user *models.User, condition interface{}) error {
+func DeleteArticleIfOwnerOrAdmin(user *models.User, slug string) error {
 	database := infrastructure.GetDB()
 	var article models.Article
-	err := database.Where(condition).Select("user_id").First(&article).Error
+	err := database.Model(&article).Where("slug = ?", slug).Select("user_id").First(&article).Error
 	if err != nil {
 		return err
 	}
 	if user.ID == article.UserID {
-		err = database.Delete(&article).Error
+		article.Slug = slug
+		err = database.Where("slug = ?", slug).Delete(&article).Error
 	}
 	return err
 }
